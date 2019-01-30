@@ -1,5 +1,3 @@
-:- dynamic pais/1.
-
 pais(holanda).
 pais(francia).
 
