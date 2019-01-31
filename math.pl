@@ -1,3 +1,5 @@
+:-dynamic fibo/2.
+
 fact(0,X) :- X is 1, !.
 fact(X,Y) :-
   Z is X-1,
