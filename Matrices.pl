@@ -1,41 +1,60 @@
+/*
+Manejador de matrices numericas. Suma, resta, multipilica y traspone matrices
+si es posible y escribe un mensaje de error cuando no puede. Las matrices
+son representadas como listas anidadas. Una matriz es una lista donde cada
+elemento es una lista y representa cada renglon.
+*/
 
-%tamaño de vectores (listas)
+
+/*
+size(i,o) :- funcion que encuentra el tamanio de una lista.
+            el primer argumento es la lista a medir y el segundo es un argumento
+            de salida.
+*/
 size([],0).
 size([_|Lista1], Resp) :-
   size(Lista1, Z),
   Resp is (1 + Z).
 
+/*
+escribe_renglon(i) :- toma una lista y la imprime. Se usa para imprimir matrices.
+*/
 escribe_renglon([]).
 escribe_renglon([X|L1]) :-
   write(X),write(' '),
   escribe_renglon(L1).
+/*
+escribe_matriz(i) :- toma una matriz y la imprime renglon por renglon.
+*/
 escribe_matriz([]).
 escribe_matriz([X|L1]) :-
   escribe_renglon(X), nl,
   escribe_matriz(L1).
 
-%suma y resta de vectores
+/*
+suma_lista(i, i, o) :- Toma dos listas como argumentos y las suma entrada por
+resta_lista(i, i, o)   entrada. Las listas deben ser del mismo tamanio ya que no
+                       existe definicion para la suma de vectores de tamanios diferentes.
+                       Esto se utiliza para marcar error cuando no se pueden sumar o
+                       restar matrices. La resta funciona igual. Estas dos funciones
+                       se utilizan para sumar y restar matrices renglon por renglon.
+*/
 suma_lista([], [], []).
 suma_lista([X|Lista1], [Y|Lista2], [Z|Resp]) :-
   Z is X+Y,
   suma_lista(Lista1, Lista2, Resp).
-
 resta_lista([], [], []).
 resta_lista([X|Lista1], [Y|Lista2], [Z|Resp]) :-
   Z is X-Y,
   resta_lista(Lista1, Lista2, Resp).
 
-lista_val([X], 1, X) :- !.
-lista_val([X|_], 1, X) :- !.
-lista_val([_|Lista1], N, Resp) :-
-  M is N-1,
-  lista_val(Lista1, M, Resp).
-
-producto_punto([], [], 0).
-producto_punto([X|Lista1], [Y|Lista2], Resp) :-
-  producto_punto(Lista1, Lista2, Mini_Resp),
-  Resp is Mini_Resp + X*Y.
-
+/*
+suma_matrices(i, i, o) :- Funcion para sumar matrices. Usa la funcion suma_lista/3.
+resta_matrices(i, i, o)   primer y segundo argumento son matrices del mismo tamanio
+                          (si no son del mismo tamanio no las puede sumar y escribe
+                          mensaje de error). El tercer argumento es de salida y es
+                          una matriz del mismo tamanio. La resta funciona igual.
+*/
 suma_matrices([], [], []).
 suma_matrices([X|Rows1], [Y|Rows2], [Z|RowsResp]) :-
   suma_lista(X, Y, Z),
@@ -50,12 +69,46 @@ resta_matrices([X|Rows1], [Y|Rows2], [Z|RowsResp]) :-
 resta_matrices(_,_,_) :-
   write('No se pueden restar matrices de tamanios diferentes'), nl.
 
+
+/*
+lista_val(i,i,o) :- Funcion para acceder a algun elemento en particular de una lista.
+                    Toma una lista como primer argumento y un numero de elemento. Regresa
+                    el valor del elemento en la lista. El primer elemento es 1
+*/
+lista_val([X], 1, X) :- !.
+lista_val([X|_], 1, X) :- !.
+lista_val([_|Lista1], N, Resp) :-
+  M is N-1,
+  lista_val(Lista1, M, Resp).
+/*
+matriz_col(i, i, o) :- Toma una matriz como primer argumento y un numero(n) como el
+                       segundo. Regresa la columna n de la matriz. La primera columna
+                       es la 1. Se apoya de la funcion lista_val/3.
+*/
 matriz_col([],_,[]).
 matriz_col([X|L1], N, [Y|Lr]) :-
   lista_val(X, N, Y),
   matriz_col(L1, N, Lr).
 
-%multiplica_renglon_matriz(renglon, matriz, numero, lista_de_respuesta)
+/*
+producto_punto(i, i, o) :- Funcion para calcular el producto punto entre dos
+                           vectores. Los primeros dos argumentos son vectores
+                           y el tercero es el producto punto entre ellos. Esta
+                           funcion se utiliza para la multiplicacion de matrices.
+*/
+producto_punto([], [], 0).
+producto_punto([X|Lista1], [Y|Lista2], Resp) :-
+  producto_punto(Lista1, Lista2, Mini_Resp),
+  Resp is Mini_Resp + X*Y.
+
+
+/*
+multiplica_renglon_matriz(i,i,i,o) :- Funcion auxiliar para la multiplicacion
+                                      de matrices. Toma un renglon y una matriz
+                                      y un numero (variable auxiliar) y regresa
+                                      una lista del producto punto entre el renglon
+                                      y cada uno de las columnas de la matriz.
+*/
 multiplica_renglon_matriz(_, _, -1, []):-!.
 multiplica_renglon_matriz(X, Y, N, [Resp|Lresp]):-
   ((M is N+1, size(Y,Tam), M =< Tam);
@@ -63,7 +116,13 @@ multiplica_renglon_matriz(X, Y, N, [Resp|Lresp]):-
   multiplica_renglon_matriz(X, Y, M, Lresp),
   matriz_col(Y, N, Col),
   producto_punto(X, Col, Resp), !.
-
+/*
+multiplica_matrices(i, i, o) :- Multiplica las dos matrices dadas apoyandose de
+                                las funciones anteriores. Los primeros dos argumentos
+                                son matrices y el tercero regresa la matriz. Las
+                                matrices deben ser compatibles para multiplicar. Si
+                                no lo son, escribe un mensaje de error.
+*/
 multiplica_matrices([], _, []).
 multiplica_matrices([X|L1], L2, [Z|L3]) :-
   multiplica_renglon_matriz(X, L2, 1, Z),
@@ -71,6 +130,30 @@ multiplica_matrices([X|L1], L2, [Z|L3]) :-
 multiplica_matrices(_,_,_) :-
   write('No se pueden multiplicar las dos matrices dadas'), nl.
 
+/*
+transpuesta(i,o) :- Toma una matriz como primer argumento y regresa la transpuesa.
+                    Unicamente hace una llamada a la funcion a_transpuesta/3 ya que
+                    esta toma una variable extra para utilizarla como auxiliar.
+
+a_transpuesta(i,i,o) :- Hace el trabajo de trasponer una matriz convirtiendo cada
+                        columna de la matriz original en renglon de la nueva. El
+                        primer argumento es una matriz y el segundo un numero (variable
+                        auxiliar) que sirve para llevar la cuenta de la columna en la que va.
+*/
+transpuesta(X,Y) :-
+  a_transpuesta(X,1,Y).
+a_transpuesta(_,-1,[]) :- !.
+a_transpuesta([X|L1],N,[Y|L2]) :-
+  ((M is N+1, size(X, Tam), M =< Tam);
+    M is -1),
+  a_transpuesta([X|L1], M, L2),
+  matriz_col([X|L1],N,Y),!.
+
+/*
+main :- Funcion para hacer todas las pruebas desde una sola consulta.
+        Se encarga de declarar las matrices para pruebas (mismas pruebas y comentarios
+        que en el ejecutable de java).
+*/
 main :-
   %se definen las matrices para las pruebas
   Mat_K = [[2,0,1,3],
@@ -121,7 +204,7 @@ main :-
   % 3) K*K debe dar error ya que no son compatibles para la multiplicacion
   multiplica_matrices(Mat_K, Mat_M, M1), escribe_matriz(M1),nl,
   multiplica_matrices(Mat_L, Mat_M, M2), escribe_matriz(M2),nl,
-  multiplica_matrices(Mat_K, Mat_K, M3), escribe_matriz(M3),nl, !.
+  multiplica_matrices(Mat_K, Mat_K, M3), escribe_matriz(M3),nl,
   %  Two transposition tests:
   % 1) K(T) =  2 -1  5
   %            0  3  1
@@ -129,26 +212,13 @@ main :-
   %            3  2 -1
   % 2) M(T) =  1  2 -1  3
   %            1  1  0 -2
+  transpuesta(Mat_K, T1), escribe_matriz(T1),nl,
+  transpuesta(Mat_M, T2), escribe_matriz(T2),nl,!.
 
-  
-  %%%%%%%%%%%%%%%%%%Hasta aqui todo bien%%%%%%%%%%%%%%%%%%%%%%
+
+
+
 /*
-multiplica_matrices([], [], []).
-multiplica_matrices([X|Rows1], Y, [Z|RowsResp]) :-
-*/
-
-transpuesta([X|L1],[X|L2]) :-
-  transpuesta(L1, L2).
-  /*
-transpuesta([], []).
-transpuesta(X,[Y|L2]) :-
-  matriz_col(X, , Y)
-
-[[2,2],[2,2]]
-
-[[2,2],[2,2]]
-[[1,2],[3,4]]
-
-multiplica_matrices([[1,1,1],[1,1,1],[1,1,1]], [[1,2,3],[4,5,6],[7,8,9]],Z)
+main. <----- Consulta sugerida.
 
 */
