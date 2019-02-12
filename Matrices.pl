@@ -1,8 +1,20 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Inteligencia Artificial   %
+%        Proyecto 1           %
+%                             %
+% Emilio Mena ........ 176115 %
+% Renata Monsalve .... 176371 %
+% Fernando Merino .... 166541 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 /*
 Manejador de matrices numericas. Suma, resta, multipilica y traspone matrices
 si es posible y escribe un mensaje de error cuando no puede. Las matrices
 son representadas como listas anidadas. Una matriz es una lista donde cada
 elemento es una lista y representa cada renglon.
+
+main. <----- Consulta sugerida.
+
 */
 
 
@@ -214,10 +226,3 @@ main :-
   %            1  1  0 -2
   transpuesta(Mat_K, T1), escribe_matriz(T1),nl,
   transpuesta(Mat_M, T2), escribe_matriz(T2),nl,!.
-
-
-
-
-/*
-main. <----- Consulta sugerida.
-*/
